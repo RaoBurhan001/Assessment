@@ -14,24 +14,27 @@ const Login = () => {
     formState: { errors },
     reset,
   } = useForm({ mode: 'all', resolver, shouldFocusError: true });
-  /**  here we handle submit on create and update  */
+
+  // Handles form submission when the user tries to log in.
   const onSubmit = async (data) => {
     const response = await loginUserAction(data);
     if (response) {
-      /** set access token in local storage */
+      // Set access token in local storage upon successful login.
       // localStorage.setItem('accessToken', response.token);
       handleRedirection();
     }
     reset();
   };
-  // ...
+
+  // Handles redirection after successful login.
   const handleRedirection = () => {
-    /** redirect to the home */
+    // Redirect to the home page.
     navigate('/listing');
   };
 
+  // Handles navigation to the Sign Up page.
   const handleSignUpClick = () => {
-    // Redirect to the desired URL upon clicking "Sign Up"
+    // Redirect to the Sign Up page upon clicking "Sign Up" button.
     navigate('/signup');
   };
 
@@ -104,4 +107,5 @@ const Login = () => {
     </Grid>
   );
 };
+
 export default Login;

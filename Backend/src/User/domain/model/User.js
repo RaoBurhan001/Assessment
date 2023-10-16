@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { Country , State , City} = require('../../../Common/domain/model')
 const userSchema = new mongoose.Schema(
   {
     name: {

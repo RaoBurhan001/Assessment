@@ -1,6 +1,12 @@
 const golbalResponse = require('../../../libraries/utils/globalResponse');
 const httpStatus = require('http-status');
 const commonService = require('../service/commonService');
+
+/**
+ * Retrieve a list of all countries.
+ * @param {Request} req - The HTTP request object.
+ * @param {Response} res - The HTTP response object.
+ */
 const getAllCountries = async (req, res) => {
   try {
     const countries = await commonService.getAllCountries();
@@ -16,6 +22,11 @@ const getAllCountries = async (req, res) => {
   }
 };
 
+/**
+ * Retrieve a list of states within a specific country by its ID.
+ * @param {Request} req - The HTTP request object.
+ * @param {Response} res - The HTTP response object.
+ */
 const getStatesByCountryId = async (req, res) => {
   try {
     const { countryId } = req.params;
@@ -26,6 +37,11 @@ const getStatesByCountryId = async (req, res) => {
   }
 };
 
+/**
+ * Retrieve a list of cities within a specific state by its ID.
+ * @param {Request} req - The HTTP request object.
+ * @param {Response} res - The HTTP response object.
+ */
 const getCitiesByStateId = async (req, res) => {
   try {
     const { stateId } = req.params;
@@ -36,4 +52,5 @@ const getCitiesByStateId = async (req, res) => {
   }
 };
 
-module.exports = { getAllCountries, getStatesByCountryId, getCitiesByStateId };
+
+module.exports = { getAllCountries, getStatesByCountryId, getCitiesByStateId  };

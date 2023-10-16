@@ -5,30 +5,36 @@ const {
 } = require('../../../libraries/utils/auth');
 
 const userRepository = require('../../data-access/userRepository');
+
 /**
- * register a user against it provided info
- * @param {*} userBody
- * @returns <Promise> user
+ * Registers a new user with the provided information.
+ * @param {object} userBody - User data including name, email, and password.
+ * @returns {Promise} A user object.
  */
 const createUser = async (userBody) => {
-  console.log('🚀 ~ file: userService.js:14 ~ createUser ~ userBody:', userBody)
   try {
+    // Check if the email is already taken
     const isEmail = await isEmailTaken({ email: userBody.email });
     if (isEmail.success) {
       throw new Error('Email already exists');
     }
-    // if (await checkUserName(userBody.name)) {
-    //   throw new Error('UserName is taken');
-    // }
-    const password = await generatePassowrd(userBody.password);
-    console.log('🚀 ~ file: userService.js:24 ~ createUser ~ password:', password)
 
+    // Check if the username is taken
+    if (await checkUserName(userBody.name)) {
+      throw new Error('Username is taken');
+    }
+
+    // Generate password hash and salt
+    const password = await generatePassowrd(userBody.password);
+
+    // Prepare user data for saving
     userBody.salt = password.salt;
     userBody.password_hash = password.passwordHash;
     delete userBody.password;
 
     // Save the user to the database
     const userData = await userRepository.createUser(userBody);
+
     if (userData) {
       return { success: true, data: userData };
     } else {
@@ -40,14 +46,12 @@ const createUser = async (userBody) => {
 };
 
 /**
- * Checks if the entered email exist in the db or not
- * @param {email} email
- * @returns <Promise> user.email
+ * Checks if the entered email exists in the database.
+ * @param {string} email - Email address to check.
+ * @returns {Promise} An object indicating whether the email is taken.
  */
 const isEmailTaken = async function (email) {
-  // try {
   const userEmail = await userRepository.isEmailTaken(email);
-  console.log(userEmail);
   if (userEmail) {
     return { success: true, data: userEmail };
   } else {
@@ -56,9 +60,9 @@ const isEmailTaken = async function (email) {
 };
 
 /**
- * Access the user provided in the token
- * @param {uerBody} userBody
- * @returns <Promise> user
+ * Retrieves a user based on the provided token data.
+ * @param {object} userBody - Token data for the user.
+ * @returns {Promise} A user object.
  */
 const getUserFromToken = async (userBody) => {
   try {
@@ -69,34 +73,58 @@ const getUserFromToken = async (userBody) => {
   }
 };
 
+/**
+ * Logs in a user with the provided credentials.
+ * @param {object} userBody - User credentials including email and password.
+ * @returns {Promise} An object with a success status and a token if successful.
+ */
 const loginUser = async (userBody) => {
   try {
+    // Check if the user exists
     const user = await userRepository.isUserExists(userBody);
     if (!user) {
-      throw new Error('No user Found');
+      throw new Error('No user found');
     }
+
+    // Compare the provided password with the stored hash
     const passwordMatch = await comparePassword(
       userBody.password,
       user.password_hash
     );
-    if (!passwordMatch) throw new Error('Passowrd does not match');
 
+    if (!passwordMatch) throw new Error('Password does not match');
+
+    // Issue a JWT token
     const token = issueJwt(user);
+
     return { success: true, data: token };
   } catch (err) {
     throw new Error(err.message);
   }
 };
 
-const getAllUsers = async (search ,page,limit,orderby) => {
+/**
+ * Retrieves a list of users based on search parameters.
+ * @param {string} search - Search criteria.
+ * @param {number} page - Page number.
+ * @param {number} limit - Limit per page.
+ * @param {string} orderby - Sort order.
+ * @returns {Promise} A list of user objects.
+ */
+const getAllUsers = async (search, page, limit, orderby) => {
   try {
-    const users = await userRepository.getAllUsers(search ,page,limit,orderby);
+    const users = await userRepository.getAllUsers(search, page, limit, orderby);
     return users;
   } catch (err) {
     throw new Error(err.message);
   }
 };
 
+/**
+ * Checks if the provided username is already taken.
+ * @param {object} userBody - User data including name (username).
+ * @returns {Promise} A username object.
+ */
 const checkUserName = async (userBody) => {
   try {
     const userName = await userRepository.checkUserName(userBody);
@@ -109,6 +137,11 @@ const checkUserName = async (userBody) => {
   }
 };
 
+/**
+ * Retrieves a user by their ID.
+ * @param {string} userId - User ID.
+ * @returns {Promise} A user object.
+ */
 const getUserById = async (userId) => {
   try {
     const user = await userRepository.getUserById(userId);
@@ -118,6 +151,12 @@ const getUserById = async (userId) => {
   }
 };
 
+/**
+ * Updates a user's information by their ID.
+ * @param {string} userId - User ID.
+ * @param {object} userBody - Updated user data.
+ * @returns {Promise} An updated user object.
+ */
 const updateUserById = async (userId, userBody) => {
   try {
     const user = await userRepository.updateUserById(userId, userBody);
@@ -127,6 +166,11 @@ const updateUserById = async (userId, userBody) => {
   }
 };
 
+/**
+ * Deletes a user by their ID.
+ * @param {string} userId - User ID to delete.
+ * @returns {Promise} A success message.
+ */
 const deleteUser = async (userId) => {
   try {
     const user = await userRepository.deleteUser(userId);
@@ -135,6 +179,7 @@ const deleteUser = async (userId) => {
     throw new Error(err.message);
   }
 };
+
 module.exports = {
   createUser,
   isEmailTaken,

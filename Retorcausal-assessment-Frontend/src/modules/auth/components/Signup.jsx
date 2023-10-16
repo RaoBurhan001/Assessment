@@ -2,26 +2,26 @@ import { useForm } from 'react-hook-form';
 import { TextField, Button, Grid, Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { signUpUserAction } from '../apiCall/AuthAction';
-import {yupResolver} from '@hookform/resolvers/yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 import SignupSchema from '../Validations/SignupValidation';
+
 const SignUp = () => {
   const navigate = useNavigate();
-  //   /**  Resolver: This function allows you to use any external validation library such as Yup  */
-    const resolver = yupResolver(SignupSchema);
-  //   /** max email length */
-  //   const {MAX_EMAIL_LENGTH} = GLOBALCONTANTS;
-  //   /**   react-hook-form handling  */
+  const resolver = yupResolver(SignupSchema);
+
   const {
     register,
     handleSubmit,
-    formState: {errors},
+    formState: { errors },
     reset,
-  } = useForm({mode: 'all', resolver, shouldFocusError: true});
-  /**  here we handle submit on create and update  */
+  } = useForm({ mode: 'all', resolver, shouldFocusError: true });
+
+  // Handles redirection to the Login page.
   const handleRedirection = () => {
-    // Redirect to the desired URL upon clicking "Sign Up"
-    navigate('/login'); // Replace '/signup' with the actual URL
+    navigate('/login'); // Redirect to the Login page upon clicking "Sign Up"
   };
+
+  // Handles form submission when the user tries to sign up.
   const onSubmit = async (data) => {
     const response = await signUpUserAction(data);
 
@@ -72,7 +72,6 @@ const SignUp = () => {
               helperText={errors?.email?.message}
               margin="normal"
             />
-
             <TextField
               {...register('password')}
               label="Password"
@@ -83,7 +82,6 @@ const SignUp = () => {
               helperText={errors?.password?.message}
               margin="normal"
             />
-
             <Button
               type="submit"
               variant="contained"
@@ -99,4 +97,5 @@ const SignUp = () => {
     </Grid>
   );
 };
+
 export default SignUp;

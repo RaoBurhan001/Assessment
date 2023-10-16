@@ -52,7 +52,6 @@ const apiClient = () => {
       if (!isCompleteUrl(url)) {
         url = `${apiUrl}${url}`;
       }
-
       return api.put(url, data);
     },
     delete: async (url) => {

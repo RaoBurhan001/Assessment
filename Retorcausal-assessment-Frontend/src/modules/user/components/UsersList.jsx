@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { getUsersAction , deleteUserAction } from '../apiCall/UserAction';
+import  { useEffect, useState, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getUsersAction, deleteUserAction } from '../apiCall/UserAction';
 import { useTable, usePagination, useFilters } from 'react-table';
 import {
   Grid,
@@ -13,80 +14,101 @@ import {
 } from '@mui/material';
 
 const TableListing = () => {
-    const defaultColumn = useMemo(
-        () => ({
-          Filter: 'name',
-        }),
-        []
-      );
-    
-      const columns = useMemo(
-        () => [
-          {
-            Header: 'Name',
-            accessor: 'name',
-            defaultCanFilter: false,
-          },
-          {
-            Header: 'Email',
-            accessor: 'email',
-            defaultCanFilter: false,
-          },
-          {
-            Header: 'Country',
-            accessor: 'country',
-            defaultCanFilter: false,
-          },
-          {
-            Header: 'State',
-            accessor: 'state',
-            defaultCanFilter: false,
-          },
-          {
-            Header: 'City',
-            accessor: 'city',
-            defaultCanFilter: false,
-          },
-        ],
-        []
-      );
-    
-      const [data, setData] = useState([]);
-      const [searchInput, setSearchInput] = useState('');
-      const currentTablePage = useRef(1);
-      const [totalPages, setTotalPages] = useState(1);
-      const [totalData, setTotalData] = useState(0);
-    
-      const getUsersList = async () => {
-        const queryParams = new URLSearchParams({
-          search: searchInput,
-          page: currentTablePage.current,
-          limit: 10,
-          orderby: 'name',
-        });
-    
-        const response = await getUsersAction(queryParams);
-        const { items, totalPages, currentPage, totalItems } = response;
-        setData(items);
-        currentTablePage.current = currentPage;
-        setTotalPages(totalPages);
-        setTotalData(totalItems);
-      };
-    
-      useEffect(() => {
-        getUsersList();
-      }, [searchInput]);
-    
-      const handleSearchInputChange = (e) => {
-        setSearchInput(e.target.value);
-      };
-    
-      const deleteUser = async (userId) => {
-        const response = await deleteUserAction(userId);
-        if (response === 'success') {
-          getUsersList();
-        }
-      };
+  const navigate = useNavigate();
+
+  // Define default column settings
+  const defaultColumn = useMemo(
+    () => ({
+      Filter: 'name', // Default column for filtering
+    }),
+    []
+  );
+
+  // Define table columns
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Name',
+        accessor: 'name',
+        defaultCanFilter: false, // Disable filtering for this column
+      },
+      {
+        Header: 'Email',
+        accessor: 'email',
+        defaultCanFilter: false,
+      },
+      {
+        Header: 'Country',
+        accessor: 'country_id.name',
+        defaultCanFilter: false,
+      },
+      {
+        Header: 'State',
+        accessor: 'state_id.name',
+        defaultCanFilter: false,
+      },
+      {
+        Header: 'City',
+        accessor: 'city_id.name',
+        defaultCanFilter: false,
+      },
+    ],
+    []
+  );
+
+  // State to store table data
+  const [data, setData] = useState([]);
+
+  // State for search input
+  const [searchInput, setSearchInput] = useState('');
+
+  // State for current table page
+  const currentTablePage = useRef(1);
+
+  // State for total pages and total data
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalData, setTotalData] = useState(0);
+
+  // Fetch user data from the API
+  const getUsersList = async () => {
+    const queryParams = new URLSearchParams({
+      search: searchInput,
+      page: currentTablePage.current,
+      limit: 10,
+      orderby: 'name',
+    });
+
+    const response = await getUsersAction(queryParams);
+    const { items, totalPages, currentPage, totalItems } = response;
+    setData(items);
+    currentTablePage.current = currentPage;
+    setTotalPages(totalPages);
+    setTotalData(totalItems);
+  };
+
+  useEffect(() => {
+    getUsersList();
+  }, [searchInput]);
+
+  // Handle search input change
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+  };
+
+  // Handle user deletion
+  const deleteUserHandler = async (userId) => {
+    const response = await deleteUserAction(userId);
+    if (response === 'success') {
+      getUsersList();
+    }
+  };
+
+  // Handle user editing
+  const editUserHandler = async (userId) => {
+    navigate(`/getuser/${userId}`);
+  };
+
+  // React-table hooks and configurations
   const {
     getTableProps,
     getTableBodyProps,
@@ -104,7 +126,7 @@ const TableListing = () => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0, pageSize: 5 },
+      initialState: { pageIndex: 0, pageSize: 5 }, // Initial page and page size
       defaultColumn,
     },
     useFilters,
@@ -157,13 +179,17 @@ const TableListing = () => {
                     </TableCell>
                   ))}
                   <TableCell>
-                    <Button variant="outlined" color="primary">
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => editUserHandler(userId)}
+                    >
                       Edit
                     </Button>
                     <Button
                       variant="outlined"
                       color="secondary"
-                      onClick={() => deleteUser(userId)}
+                      onClick={() => deleteUserHandler(userId)}
                     >
                       Delete
                     </Button>

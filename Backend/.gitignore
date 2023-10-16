@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+
+# yarn error logs
+yarn-error.log
+
+# Environment varibales
+.env*
+!.env*.example
+
+# Code coverage
+coverage
+
+# package-lock
+yarn.lock
+package-lock.json
+
+# uploads
+uploads
+
+#erros
+errors
+
+#csv folder
+csv_files

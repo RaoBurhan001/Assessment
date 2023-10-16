@@ -1,10 +1,12 @@
 const User = require('../domain/model/User');
 
+/**
+ * Create a new user with the provided user data.
+ *
+ * @param {object} userBody - User data.
+ * @returns {Promise<object>} The user data.
+ */
 const createUser = async (userBody) => {
-  console.log(
-    '🚀 ~ file: userRepository.js:4 ~ createUser ~ userBody:',
-    userBody
-  );
   try {
     const newUser = new User({
       name: userBody.name,
@@ -19,17 +21,27 @@ const createUser = async (userBody) => {
   }
 };
 
+/**
+ * Check if an email is already taken by an existing user.
+ *
+ * @param {string} email - The email to check.
+ * @returns {Promise<object|null>} The user email or null if not found.
+ */
 const isEmailTaken = async (email) => {
   try {
-    console.log(email);
     const userEmail = await User.findOne(email, { email: 1 });
-    console.log(userEmail);
     return userEmail;
   } catch (err) {
     return err;
   }
 };
 
+/**
+ * Get a user from a token.
+ *
+ * @param {object} userBody - User data.
+ * @returns {Promise<object|null>} The user or null if not found.
+ */
 const getUserFromToken = async (userBody) => {
   try {
     const user = await User.findById(userBody.id);
@@ -39,6 +51,12 @@ const getUserFromToken = async (userBody) => {
   }
 };
 
+/**
+ * Check if a user with a given email already exists.
+ *
+ * @param {object} userBody - User data with an email.
+ * @returns {Promise<object|null>} The user or null if not found.
+ */
 const isUserExists = async (userBody) => {
   try {
     const user = await User.findOne({ email: userBody.email });
@@ -48,6 +66,15 @@ const isUserExists = async (userBody) => {
   }
 };
 
+/**
+ * Get a list of users based on search criteria, pagination, and sorting.
+ *
+ * @param {string} search - Search term.
+ * @param {number} page - Page number.
+ * @param {number} limit - Number of items per page.
+ * @param {string} orderby - Sorting order.
+ * @returns {Promise<object>} User data.
+ */
 const getAllUsers = async (search, page, limit, orderby) => {
   try {
     let filterCriteria = {};
@@ -59,6 +86,9 @@ const getAllUsers = async (search, page, limit, orderby) => {
       const totalItems = await User.countDocuments(filterCriteria);
 
       const items = await User.find(filterCriteria)
+        .populate('country_id')
+        .populate('state_id')
+        .populate('city_id')
         .sort(orderby === 'asc' ? 'name' : '-name')
         .skip((page - 1) * limit)
         .limit(limit);
@@ -75,6 +105,9 @@ const getAllUsers = async (search, page, limit, orderby) => {
       // Handle the case when the search term is not provided
       const totalItems = await User.countDocuments();
       const items = await User.find({})
+        .populate('country_id')
+        .populate('state_id')
+        .populate('city_id')
         .sort(orderby === 'asc' ? 'name' : '-name')
         .skip((page - 1) * limit)
         .limit(limit);
@@ -93,6 +126,12 @@ const getAllUsers = async (search, page, limit, orderby) => {
   }
 };
 
+/**
+ * Check if a username is already taken.
+ *
+ * @param {object} userBody - User data with a username.
+ * @returns {Promise<object|null>} The user username or null if not found.
+ */
 const checkUserName = async (userBody) => {
   try {
     const user = await User.findOne({ username: userBody }, { username: 1 });
@@ -102,6 +141,12 @@ const checkUserName = async (userBody) => {
   }
 };
 
+/**
+ * Get a user by their ID.
+ *
+ * @param {string} userId - User ID.
+ * @returns {Promise<object|null>} The user or null if not found.
+ */
 const getUserById = async (userId) => {
   try {
     const user = await User.findOne({ _id: userId })
@@ -114,6 +159,13 @@ const getUserById = async (userId) => {
   }
 };
 
+/**
+ * Update user information by their ID.
+ *
+ * @param {string} userId - User ID.
+ * @param {object} userBody - Updated user data.
+ * @returns {Promise<object|null>} The updated user or null if not found.
+ */
 const updateUserById = async (userId, userBody) => {
   try {
     const updatedPlayer = await User.findByIdAndUpdate(userId, userBody, {
@@ -124,6 +176,13 @@ const updateUserById = async (userId, userBody) => {
     return err;
   }
 };
+
+/**
+ * Delete a user by their ID.
+ *
+ * @param {string} id - User ID.
+ * @returns {Promise<object|null>} The deleted user or null if not found.
+ */
 const deleteUser = async (id) => {
   try {
     return await User.findByIdAndDelete(id);
@@ -131,6 +190,7 @@ const deleteUser = async (id) => {
     return err;
   }
 };
+
 module.exports = {
   createUser,
   isEmailTaken,
