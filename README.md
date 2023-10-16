@@ -1,19 +1,34 @@
 
 Table of Contents
+
 Steps to run the project
+
 Backend Development
+
 Database Setup
+
 Database Models
+
 Database Configuration
+
 Database Seeder
+
 RESTful API Endpoints
+
 Frontend Development
+
 Design and UI Framework
+
 Integration with API
+
 Signup Page
+
 Users List Page
+
 Backend Development
+
 Database Setup
+
 We use MongoDB for this project. You can install MongoDB and set up a local database. Make sure the MongoDB server is running. You can install MongoDB from here.
 
 clone the repository
